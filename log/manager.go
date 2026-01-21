@@ -83,10 +83,7 @@ func (mgr *Manager) Flush(lsn int) {
 
 func (mgr *Manager) Iterator() *Iterator {
 	mgr.flush()
-	it := &Iterator{
-		fm:    mgr.fm,
-		block: mgr.currentBlock,
-	}
+	it := NewIterator(mgr.fm, mgr.currentBlock)
 	return it
 }
 
