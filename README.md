@@ -10,16 +10,16 @@ From book Database Design and Implementation
 
 1. [ ] Database System
 2. [ ] JDBC
-3. [_] Disk and File Management
-4. [_] Memory Management
-5. [_] Transaction Management
-6. [_] Record Management
-7. [_] Metadata Management
-8. [_] Query Processing
-9. [_] Parsing
-10. [_] Planning
-11. [_] JDBC Interfaces
-12. [_] Indexing
-13. [_] Materialization and Sorting
-14. [_] Effective Buffer Utilization
-15. [_] Query Optimization
+3. [ ] Disk and File Management
+4. [ ] Memory Management
+5. [ ] Transaction Management
+6. [ ] Record Management
+7. [ ] Metadata Management
+8. [ ] Query Processing
+9. [ ] Parsing
+10. [ ] Planning
+11. [ ] JDBC Interfaces
+12. [ ] Indexing
+13. [ ] Materialization and Sorting
+14. [ ] Effective Buffer Utilization
+15. [ ] Query Optimization

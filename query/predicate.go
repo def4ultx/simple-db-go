@@ -74,7 +74,7 @@ func (p *Predicate) JoinSubPred(sch1, sch2 *record.Schema) *Predicate {
 	return result
 }
 
-func (p *Predicate) EquatesWithConstant(fieldName string) *Constant {
+func (p *Predicate) EquatesWithConstant(fieldName string) *types.Constant {
 	for _, t := range p.terms {
 		c := t.EquatesWithConstant(fieldName)
 		if c != nil {

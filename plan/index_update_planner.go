@@ -2,7 +2,6 @@ package plan
 
 import (
 	"log"
-	"simpledbgo/index"
 	"simpledbgo/metadata"
 	"simpledbgo/parser"
 	"simpledbgo/tx"
@@ -86,7 +85,7 @@ func (p *IndexUpdatePlanner) ExecuteUpdate(data *parser.UpdateData, tx *tx.Trans
 	pl = NewSelectPlan(pl, data.Predicate)
 
 	ii, ok := p.mdm.GetIndexInfo(tableName, tx)[fieldName]
-	var index index.Index
+	var index types.Index
 	if ok {
 		index = ii.Open()
 	}

@@ -3,9 +3,9 @@ package index
 import (
 	"fmt"
 	"simpledbgo/operator"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
+	"simpledbgo/types"
 )
 
 const (
@@ -16,7 +16,7 @@ type HashIndex struct {
 	tx        *tx.Transaction
 	indexName string
 	layout    *record.Layout
-	searchKey *query.Constant
+	searchKey *types.Constant
 	tableScan *operator.TableScan
 }
 
@@ -29,7 +29,7 @@ func NewHashIndex(tx *tx.Transaction, indexName string, layout *record.Layout) *
 	return idx
 }
 
-func (idx *HashIndex) BeforeFirst(searchKey *query.Constant) {
+func (idx *HashIndex) BeforeFirst(searchKey *types.Constant) {
 	idx.Close()
 	idx.searchKey = searchKey
 
@@ -42,7 +42,7 @@ func (idx *HashIndex) BeforeFirst(searchKey *query.Constant) {
 func (idx *HashIndex) Next() bool {
 	for idx.tableScan.Next() {
 		val := idx.tableScan.GetVal("dataval")
-		if query.ConstantEqual(val, idx.searchKey) {
+		if types.ConstantEqual(val, idx.searchKey) {
 			return true
 		}
 	}
@@ -55,7 +55,7 @@ func (idx *HashIndex) GetDataRowID() record.RowID {
 	return record.NewRowID(blockNum, id)
 }
 
-func (idx *HashIndex) Insert(val *query.Constant, rowID record.RowID) {
+func (idx *HashIndex) Insert(val *types.Constant, rowID record.RowID) {
 	idx.BeforeFirst(val)
 	idx.tableScan.Insert()
 	idx.tableScan.SetInt("block", rowID.BlockNumber())
@@ -63,7 +63,7 @@ func (idx *HashIndex) Insert(val *query.Constant, rowID record.RowID) {
 	idx.tableScan.SetVal("dataval", val)
 }
 
-func (idx *HashIndex) Delete(val *query.Constant, rowID record.RowID) {
+func (idx *HashIndex) Delete(val *types.Constant, rowID record.RowID) {
 	idx.BeforeFirst(val)
 	for idx.Next() {
 		if idx.GetDataRowID() == rowID {

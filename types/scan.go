@@ -1,7 +1,6 @@
 package types
 
 import (
-	"simpledbgo/query"
 	"simpledbgo/record"
 )
 
@@ -10,7 +9,7 @@ type Scan interface {
 	Next() bool
 	GetInt(fieldName string) int
 	GetString(fieldName string) string
-	GetVal(fieldName string) *query.Constant
+	GetVal(fieldName string) *Constant
 	HasField(fieldName string) bool
 	Close()
 }
@@ -19,7 +18,7 @@ type UpdateScan interface {
 	Scan
 	SetInt(fieldName string, val int)
 	SetString(fieldName string, val string)
-	SetVal(fieldName string, val *query.Constant)
+	SetVal(fieldName string, val *Constant)
 	Insert()
 	Delete()
 	GetRowID() record.RowID

@@ -3,7 +3,6 @@ package multibuffer
 import (
 	"simpledbgo/materialize"
 	"simpledbgo/operator"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
 	"simpledbgo/types"
@@ -134,7 +133,7 @@ func (p *ProductScan) GetString(fieldName string) string {
 	return p.prodScan.GetString(fieldName)
 }
 
-func (p *ProductScan) GetVal(fieldName string) *query.Constant {
+func (p *ProductScan) GetVal(fieldName string) *types.Constant {
 	return p.prodScan.GetVal(fieldName)
 }
 

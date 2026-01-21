@@ -40,7 +40,7 @@ func (s *SelectScan) GetString(fieldName string) string {
 	return s.scan.GetString(fieldName)
 }
 
-func (s *SelectScan) GetVal(fieldName string) *query.Constant {
+func (s *SelectScan) GetVal(fieldName string) *types.Constant {
 	return s.scan.GetVal(fieldName)
 }
 
@@ -62,7 +62,7 @@ func (s *SelectScan) SetString(fieldName string, val string) {
 	us.SetString(fieldName, val)
 }
 
-func (s *SelectScan) SetVal(fieldName string, val *query.Constant) {
+func (s *SelectScan) SetVal(fieldName string, val *types.Constant) {
 	us := s.scan.(types.UpdateScan)
 	us.SetVal(fieldName, val)
 }

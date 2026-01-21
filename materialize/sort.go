@@ -1,7 +1,6 @@
 package materialize
 
 import (
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
 	"simpledbgo/types"
@@ -20,7 +19,7 @@ func (c *RecordComparator) Compare(s1, s2 types.Scan) int {
 		v1 := s1.GetVal(field)
 		v2 := s2.GetVal(field)
 
-		res := query.CompareTo(v1, v2)
+		res := types.ConstantCompareTo(v1, v2)
 		if res != 0 {
 			return res
 		}
@@ -238,7 +237,7 @@ func (s *SortScan) GetInt(fieldName string) int {
 func (s *SortScan) GetString(fieldName string) string {
 	return s.currentScan.GetString(fieldName)
 }
-func (s *SortScan) GetVal(fieldName string) *query.Constant {
+func (s *SortScan) GetVal(fieldName string) *types.Constant {
 	return s.currentScan.GetVal(fieldName)
 }
 

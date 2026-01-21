@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"simpledbgo/index"
 	"simpledbgo/operator"
 	"simpledbgo/record"
 	"simpledbgo/tx"
@@ -8,21 +9,21 @@ import (
 
 type StatManager struct {
 	tableManager *TableManager
-	tableStats   map[string]*StatInfo
+	tableStats   map[string]*index.StatInfo
 	numCalls     int
 }
 
 func NewStatManager(tableManager *TableManager, tx *tx.Transaction) *StatManager {
 	mgr := &StatManager{
 		tableManager: tableManager,
-		tableStats:   make(map[string]*StatInfo),
+		tableStats:   make(map[string]*index.StatInfo),
 		numCalls:     0,
 	}
 	return mgr
 }
 
 // TODO: Synchronized
-func (mgr *StatManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) *StatInfo {
+func (mgr *StatManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) *index.StatInfo {
 	mgr.numCalls++
 
 	if mgr.numCalls > 100 {
@@ -38,7 +39,7 @@ func (mgr *StatManager) GetStatInfo(tableName string, layout *record.Layout, tx 
 
 // TODO: Synchronized
 func (mgr *StatManager) refreshStatistics(tx *tx.Transaction) {
-	mgr.tableStats = make(map[string]*StatInfo)
+	mgr.tableStats = make(map[string]*index.StatInfo)
 	mgr.numCalls = 0
 
 	tableCatalogLayout := mgr.tableManager.GetLayout("tblcat", tx)
@@ -55,7 +56,7 @@ func (mgr *StatManager) refreshStatistics(tx *tx.Transaction) {
 }
 
 // TODO: Synchronized
-func (mgr *StatManager) calculateTableStats(tableName string, layout *record.Layout, tx *tx.Transaction) *StatInfo {
+func (mgr *StatManager) calculateTableStats(tableName string, layout *record.Layout, tx *tx.Transaction) *index.StatInfo {
 	numRec := 0
 	numBlock := 0
 
@@ -66,26 +67,9 @@ func (mgr *StatManager) calculateTableStats(tableName string, layout *record.Lay
 	}
 	ts.Close()
 
-	si := &StatInfo{
-		numBlock: numBlock,
-		numRec:   numRec,
+	si := &index.StatInfo{
+		NumBlock: numBlock,
+		NumRec:   numRec,
 	}
 	return si
-}
-
-type StatInfo struct {
-	numBlock int
-	numRec   int
-}
-
-func (si StatInfo) BlocksAccessed() int {
-	return si.numBlock
-}
-
-func (si StatInfo) RecordsOutput() int {
-	return si.numRec
-}
-
-func (si StatInfo) DistinctValues(fieldName string) int {
-	return 1 + (si.numRec / 3) // Not accurate
 }

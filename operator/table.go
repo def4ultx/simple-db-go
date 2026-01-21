@@ -2,9 +2,9 @@ package operator
 
 import (
 	"simpledbgo/file"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
+	"simpledbgo/types"
 )
 
 type TableScan struct {
@@ -62,11 +62,11 @@ func (ts *TableScan) GetString(fieldName string) string {
 	return ts.rp.GetString(ts.currentSlot, fieldName)
 }
 
-func (ts *TableScan) GetVal(fieldName string) *query.Constant {
+func (ts *TableScan) GetVal(fieldName string) *types.Constant {
 	if ts.layout.Schema().Type(fieldName) == record.FieldTypeInteger {
-		return query.NewIntConstant(ts.GetInt(fieldName))
+		return types.NewIntConstant(ts.GetInt(fieldName))
 	} else {
-		return query.NewStringConstant(ts.GetString(fieldName))
+		return types.NewStringConstant(ts.GetString(fieldName))
 	}
 }
 
@@ -82,7 +82,7 @@ func (ts *TableScan) SetString(fieldName string, val string) {
 	ts.rp.SetString(ts.currentSlot, fieldName, val)
 }
 
-func (ts *TableScan) SetVal(fieldName string, val *query.Constant) {
+func (ts *TableScan) SetVal(fieldName string, val *types.Constant) {
 	if ts.layout.Schema().Type(fieldName) == record.FieldTypeInteger {
 		ts.SetInt(fieldName, val.AsInt())
 	} else {

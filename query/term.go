@@ -45,13 +45,13 @@ func (t *Term) ReductionFactor(p types.Plan) int {
 	}
 
 	// otherwise, the term equates constants
-	if ConstantEqual(t.lhs.AsConstant(), t.rhs.AsConstant()) {
+	if types.ConstantEqual(t.lhs.AsConstant(), t.rhs.AsConstant()) {
 		return 1
 	}
 	return math.MaxInt32
 }
 
-func (t *Term) EquatesWithConstant(fieldName string) *Constant {
+func (t *Term) EquatesWithConstant(fieldName string) *types.Constant {
 	if t.lhs.isFieldName() && t.lhs.AsFieldName() == fieldName && !t.rhs.isFieldName() {
 		return t.rhs.AsConstant()
 	}

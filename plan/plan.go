@@ -1,6 +1,7 @@
 package plan
 
 import (
+	"simpledbgo/index"
 	"simpledbgo/metadata"
 	"simpledbgo/operator"
 	"simpledbgo/query"
@@ -13,7 +14,7 @@ type TablePlan struct {
 	tx        *tx.Transaction
 	tableName string
 	layout    *record.Layout
-	statInfo  *metadata.StatInfo
+	statInfo  *index.StatInfo
 }
 
 func NewTablePlan(tx *tx.Transaction, tableName string, mdm *metadata.MetadataManager) *TablePlan {

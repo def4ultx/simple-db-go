@@ -3,14 +3,15 @@ package query
 import (
 	"fmt"
 	"simpledbgo/record"
+	"simpledbgo/types"
 )
 
 type Expression struct {
-	value     *Constant
+	value     *types.Constant
 	fieldName string
 }
 
-func NewConstantExpression(value *Constant) *Expression {
+func NewConstantExpression(value *types.Constant) *Expression {
 	return &Expression{value: value}
 }
 
@@ -22,7 +23,7 @@ func (e *Expression) isFieldName() bool {
 	return len(e.fieldName) > 0
 }
 
-func (e *Expression) AsConstant() *Constant {
+func (e *Expression) AsConstant() *types.Constant {
 	return e.value
 }
 
@@ -30,7 +31,7 @@ func (e *Expression) AsFieldName() string {
 	return e.fieldName
 }
 
-func (e *Expression) Evaluate(scan Scan) *Constant {
+func (e *Expression) Evaluate(scan types.Scan) *types.Constant {
 	if e.value != nil {
 		return e.value
 	}

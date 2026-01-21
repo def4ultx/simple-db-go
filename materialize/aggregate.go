@@ -1,7 +1,6 @@
 package materialize
 
 import (
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
 	"simpledbgo/types"
@@ -121,7 +120,7 @@ func (t *GroupByScan) GetString(fieldName string) string {
 	return t.GetVal(fieldName).AsString()
 }
 
-func (t *GroupByScan) GetVal(fieldName string) *query.Constant {
+func (t *GroupByScan) GetVal(fieldName string) *types.Constant {
 	if slices.Contains(t.fields, fieldName) {
 		return t.groupVal.vals[fieldName]
 	}
@@ -150,11 +149,11 @@ func (t *GroupByScan) HasField(fieldName string) bool {
 }
 
 type GroupValue struct {
-	vals map[string]*query.Constant
+	vals map[string]*types.Constant
 }
 
 func NewGroupVal(scan types.Scan, fields []string) *GroupValue {
-	m := make(map[string]*query.Constant)
+	m := make(map[string]*types.Constant)
 	for _, field := range fields {
 		m[field] = scan.GetVal(field)
 	}
@@ -174,7 +173,7 @@ func GroupValEq(a, b *GroupValue) bool {
 			return false
 		}
 
-		if !query.ConstantEqual(v1, v2) {
+		if !types.ConstantEqual(v1, v2) {
 			return false
 		}
 	}
@@ -186,12 +185,12 @@ type AggregateFn interface {
 	ProcessFirst(scan types.Scan)
 	ProcessNext(scan types.Scan)
 	FieldName() string
-	Value() *query.Constant
+	Value() *types.Constant
 }
 
 type MaxFn struct {
 	fieldName string
-	value     *query.Constant
+	value     *types.Constant
 }
 
 func NewMaxFn(fieldName string) *MaxFn {
@@ -207,7 +206,7 @@ func (f *MaxFn) ProcessFirst(scan types.Scan) {
 
 func (f *MaxFn) ProcessNext(scan types.Scan) {
 	newVal := scan.GetVal(f.fieldName)
-	if query.CompareTo(f.value, newVal) > 0 {
+	if types.ConstantCompareTo(f.value, newVal) > 0 {
 		f.value = newVal
 	}
 }
@@ -216,6 +215,6 @@ func (f *MaxFn) FieldName() string {
 	return "maxof" + f.fieldName
 }
 
-func (f *MaxFn) Value() *query.Constant {
+func (f *MaxFn) Value() *types.Constant {
 	return f.value
 }

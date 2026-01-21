@@ -1,20 +1,18 @@
 package index
 
 import (
-	"simpledbgo/metadata"
 	"simpledbgo/operator"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/types"
 )
 
 type IndexSelectPlan struct {
 	plan types.Plan
-	ii   *metadata.IndexInfo
-	val  *query.Constant
+	ii   *IndexInfo
+	val  *types.Constant
 }
 
-func NewIndexSelectPlan(p types.Plan, ii *metadata.IndexInfo, val *query.Constant) *IndexSelectPlan {
+func NewIndexSelectPlan(p types.Plan, ii *IndexInfo, val *types.Constant) *IndexSelectPlan {
 	return &IndexSelectPlan{
 		plan: p,
 		ii:   ii,
@@ -47,11 +45,11 @@ func (s *IndexSelectPlan) Schema() *record.Schema {
 
 type IndexSelectScan struct {
 	ts    *operator.TableScan
-	index Index
-	val   *query.Constant
+	index types.Index
+	val   *types.Constant
 }
 
-func NewIndexSelectScan(ts *operator.TableScan, idx Index, val *query.Constant) types.Scan {
+func NewIndexSelectScan(ts *operator.TableScan, idx types.Index, val *types.Constant) types.Scan {
 	scan := &IndexSelectScan{
 		ts:    ts,
 		index: idx,
@@ -82,7 +80,7 @@ func (s *IndexSelectScan) GetString(fieldName string) string {
 	return s.ts.GetString(fieldName)
 }
 
-func (s *IndexSelectScan) GetVal(fieldName string) *query.Constant {
+func (s *IndexSelectScan) GetVal(fieldName string) *types.Constant {
 	return s.ts.GetVal(fieldName)
 }
 
@@ -98,12 +96,12 @@ func (s *IndexSelectScan) Close() {
 type IndexJoinPlan struct {
 	p1        types.Plan
 	p2        types.Plan
-	ii        *metadata.IndexInfo
+	ii        *IndexInfo
 	joinField string
 	schema    *record.Schema
 }
 
-func NewIndexJoinPlan(p1, p2 types.Plan, ii *metadata.IndexInfo, joinField string) *IndexJoinPlan {
+func NewIndexJoinPlan(p1, p2 types.Plan, ii *IndexInfo, joinField string) *IndexJoinPlan {
 	ijp := &IndexJoinPlan{
 		p1:        p1,
 		p2:        p2,
@@ -146,12 +144,12 @@ func (p *IndexJoinPlan) Schema() *record.Schema {
 
 type IndexJoinScan struct {
 	lhs       types.Scan
-	index     Index
+	index     types.Index
 	joinField string
 	rhs       *operator.TableScan
 }
 
-func NewIndexJoinScan(lhs types.Scan, idx Index, joinField string, rhs *operator.TableScan) *IndexJoinScan {
+func NewIndexJoinScan(lhs types.Scan, idx types.Index, joinField string, rhs *operator.TableScan) *IndexJoinScan {
 	plan := &IndexJoinScan{
 		lhs:       lhs,
 		index:     idx,
@@ -196,7 +194,7 @@ func (p *IndexJoinScan) GetString(fieldName string) string {
 	}
 }
 
-func (p *IndexJoinScan) GetVal(fieldName string) *query.Constant {
+func (p *IndexJoinScan) GetVal(fieldName string) *types.Constant {
 	if p.rhs.HasField(fieldName) {
 		return p.rhs.GetVal(fieldName)
 	} else {

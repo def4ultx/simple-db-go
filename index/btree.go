@@ -3,9 +3,9 @@ package index
 import (
 	"math"
 	"simpledbgo/file"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
+	"simpledbgo/types"
 )
 
 type BTreePage struct {
@@ -24,9 +24,9 @@ func NewBTreePage(tx *tx.Transaction, blockID *file.BlockID, layout *record.Layo
 	return page
 }
 
-func (t *BTreePage) FindSlotBefore(searchKey *query.Constant) int {
+func (t *BTreePage) FindSlotBefore(searchKey *types.Constant) int {
 	slot := 0
-	for slot < t.GetNumRecords() && query.CompareTo(t.GetDataVal(slot), searchKey) < 0 {
+	for slot < t.GetNumRecords() && types.ConstantCompareTo(t.GetDataVal(slot), searchKey) < 0 {
 		slot++
 	}
 	return slot - 1
@@ -52,7 +52,7 @@ func (t *BTreePage) Split(splitPos int, flag int) *file.BlockID {
 	return newBlock
 }
 
-func (t *BTreePage) GetDataVal(slot int) *query.Constant {
+func (t *BTreePage) GetDataVal(slot int) *types.Constant {
 	return t.GetVal(slot, "dataval")
 }
 
@@ -97,7 +97,7 @@ func (t *BTreePage) GetChildNum(slot int) int {
 	return t.GetInt(slot, "block")
 }
 
-func (t *BTreePage) InsertDir(slot int, val *query.Constant, blockNum int) {
+func (t *BTreePage) InsertDir(slot int, val *types.Constant, blockNum int) {
 	t.Insert(slot)
 	t.SetVal(slot, "dataval", val)
 	t.SetInt(slot, "blocl", blockNum)
@@ -107,7 +107,7 @@ func (t *BTreePage) GetDataRowID(slot int) record.RowID {
 	return record.NewRowID(t.GetInt(slot, "block"), t.GetInt(slot, "id"))
 }
 
-func (t *BTreePage) InsertLeaf(slot int, val *query.Constant, rowID record.RowID) {
+func (t *BTreePage) InsertLeaf(slot int, val *types.Constant, rowID record.RowID) {
 	t.Insert(slot)
 	t.SetVal(slot, "dataval", val)
 	t.SetInt(slot, "block", rowID.BlockNumber())
@@ -135,12 +135,12 @@ func (t *BTreePage) GetString(slot int, fieldName string) string {
 	return t.tx.GetString(t.blockID, pos)
 }
 
-func (t *BTreePage) GetVal(slot int, fieldName string) *query.Constant {
+func (t *BTreePage) GetVal(slot int, fieldName string) *types.Constant {
 	typ := t.layout.Schema().Type(fieldName)
 	if typ == record.FieldTypeInteger {
-		return query.NewIntConstant(t.GetInt(slot, fieldName))
+		return types.NewIntConstant(t.GetInt(slot, fieldName))
 	} else {
-		return query.NewStringConstant(t.GetString(slot, fieldName))
+		return types.NewStringConstant(t.GetString(slot, fieldName))
 	}
 }
 
@@ -154,7 +154,7 @@ func (t *BTreePage) SetString(slot int, fieldName string, val string) {
 	t.tx.SetString(t.blockID, pos, val, true)
 }
 
-func (t *BTreePage) SetVal(slot int, fieldName string, val *query.Constant) {
+func (t *BTreePage) SetVal(slot int, fieldName string, val *types.Constant) {
 	typ := t.layout.Schema().Type(fieldName)
 	if typ == record.FieldTypeInteger {
 		t.SetInt(slot, fieldName, val.AsInt())
@@ -208,13 +208,13 @@ func (t *BTreePage) SlotPos(slot int) int {
 type BTreeLeaf struct {
 	tx          *tx.Transaction
 	layout      *record.Layout
-	searchKey   *query.Constant
+	searchKey   *types.Constant
 	contents    *BTreePage
 	currentSlot int
 	filename    string
 }
 
-func NewBTreeLeaf(tx *tx.Transaction, blockID *file.BlockID, layout *record.Layout, searchKey *query.Constant) *BTreeLeaf {
+func NewBTreeLeaf(tx *tx.Transaction, blockID *file.BlockID, layout *record.Layout, searchKey *types.Constant) *BTreeLeaf {
 	page := NewBTreePage(tx, blockID, layout)
 	leaf := &BTreeLeaf{
 		tx:          tx,
@@ -235,7 +235,7 @@ func (t *BTreeLeaf) Next() bool {
 	t.currentSlot++
 	if t.currentSlot >= t.contents.GetNumRecords() {
 		return t.tryOverflow()
-	} else if query.ConstantEqual(t.contents.GetDataVal(t.currentSlot), t.searchKey) {
+	} else if types.ConstantEqual(t.contents.GetDataVal(t.currentSlot), t.searchKey) {
 		return true
 	} else {
 		return t.tryOverflow()
@@ -256,7 +256,7 @@ func (t *BTreeLeaf) Delete(rowID record.RowID) {
 }
 
 func (t *BTreeLeaf) Insert(rowID record.RowID) *DirectoryEntry {
-	if t.contents.GetFlag() >= 0 && query.CompareTo(t.contents.GetDataVal(0), t.searchKey) > 0 {
+	if t.contents.GetFlag() >= 0 && types.ConstantCompareTo(t.contents.GetDataVal(0), t.searchKey) > 0 {
 		firstVal := t.contents.GetDataVal(0)
 		newBlock := t.contents.Split(0, t.contents.GetFlag())
 		t.currentSlot = 0
@@ -277,7 +277,7 @@ func (t *BTreeLeaf) Insert(rowID record.RowID) *DirectoryEntry {
 	firstKey := t.contents.GetDataVal(0)
 	lastKey := t.contents.GetDataVal(t.contents.GetNumRecords() - 1)
 
-	if query.ConstantEqual(lastKey, firstKey) {
+	if types.ConstantEqual(lastKey, firstKey) {
 		// create overflow block to hold all but first record
 		newBlock := t.contents.Split(1, t.contents.GetFlag())
 		t.contents.SetFlag(newBlock.BlockNumber)
@@ -289,15 +289,15 @@ func (t *BTreeLeaf) Insert(rowID record.RowID) *DirectoryEntry {
 
 	splitKey := t.contents.GetDataVal(splitPos)
 
-	if query.ConstantEqual(splitKey, firstKey) {
+	if types.ConstantEqual(splitKey, firstKey) {
 		// move right, looking for the next key
-		for query.ConstantEqual(splitKey, t.contents.GetDataVal(splitPos)) {
+		for types.ConstantEqual(splitKey, t.contents.GetDataVal(splitPos)) {
 			splitPos++
 		}
 		splitKey = t.contents.GetDataVal(splitPos)
 	} else {
 		// move left, looking for for first entry having that key
-		for query.ConstantEqual(splitKey, t.contents.GetDataVal(splitPos)) {
+		for types.ConstantEqual(splitKey, t.contents.GetDataVal(splitPos)) {
 			splitPos--
 		}
 	}
@@ -310,7 +310,7 @@ func (t *BTreeLeaf) tryOverflow() bool {
 	firstKey := t.contents.GetDataVal(0)
 	flag := t.contents.GetFlag()
 
-	if !query.ConstantEqual(firstKey, t.searchKey) || flag < 0 {
+	if !types.ConstantEqual(firstKey, t.searchKey) || flag < 0 {
 		return false
 	}
 
@@ -322,11 +322,11 @@ func (t *BTreeLeaf) tryOverflow() bool {
 }
 
 type DirectoryEntry struct {
-	dataVal  *query.Constant
+	dataVal  *types.Constant
 	blockNum int
 }
 
-func NewDirectoryEntry(dataVal *query.Constant, blockNum int) *DirectoryEntry {
+func NewDirectoryEntry(dataVal *types.Constant, blockNum int) *DirectoryEntry {
 	return &DirectoryEntry{
 		dataVal:  dataVal,
 		blockNum: blockNum,
@@ -359,7 +359,7 @@ func (t *BTreeDirectory) Close() {
 	t.contents.Close()
 }
 
-func (t *BTreeDirectory) Search(searchKey *query.Constant) int {
+func (t *BTreeDirectory) Search(searchKey *types.Constant) int {
 	childBlock := t.FindChildBlock(searchKey)
 	for t.contents.GetFlag() > 0 {
 		t.contents.Close()
@@ -412,9 +412,9 @@ func (t *BTreeDirectory) InsertEntry(entry *DirectoryEntry) *DirectoryEntry {
 	return NewDirectoryEntry(splitVal, newBlock.BlockNumber)
 }
 
-func (t *BTreeDirectory) FindChildBlock(searchKey *query.Constant) *file.BlockID {
+func (t *BTreeDirectory) FindChildBlock(searchKey *types.Constant) *file.BlockID {
 	slot := t.contents.FindSlotBefore(searchKey)
-	if query.ConstantEqual(t.contents.GetDataVal(slot+1), searchKey) {
+	if types.ConstantEqual(t.contents.GetDataVal(slot+1), searchKey) {
 		slot++
 	}
 
@@ -462,12 +462,12 @@ func NewBTreeIndex(tx *tx.Transaction, indexName string, leafLayout *record.Layo
 		node.Format(rootBlock, 0)
 		// insert initial directory entry
 		fieldType := dirSchema.Type("dataval")
-		var minVal *query.Constant
+		var minVal *types.Constant
 
 		if fieldType == record.FieldTypeInteger {
-			minVal = query.NewIntConstant(math.MinInt32)
+			minVal = types.NewIntConstant(math.MinInt32)
 		} else {
-			minVal = query.NewStringConstant("")
+			minVal = types.NewStringConstant("")
 		}
 
 		node.InsertDir(0, minVal, 0)
@@ -480,7 +480,7 @@ func NewBTreeIndex(tx *tx.Transaction, indexName string, leafLayout *record.Layo
 	return btreeIndex
 }
 
-func (t *BTreeIndex) BeforeFirst(searchKey *query.Constant) {
+func (t *BTreeIndex) BeforeFirst(searchKey *types.Constant) {
 	t.Close()
 
 	root := NewBTreeDirectory(t.tx, t.rootBlock, t.directoryLayout)
@@ -498,7 +498,7 @@ func (t *BTreeIndex) GetDataRowID() record.RowID {
 	return t.leaf.GetDataRowID()
 }
 
-func (t *BTreeIndex) Insert(dataVal *query.Constant, rowID record.RowID) {
+func (t *BTreeIndex) Insert(dataVal *types.Constant, rowID record.RowID) {
 	t.BeforeFirst(dataVal)
 	e := t.leaf.Insert(rowID)
 	t.leaf.Close()
@@ -515,7 +515,7 @@ func (t *BTreeIndex) Insert(dataVal *query.Constant, rowID record.RowID) {
 	root.Close()
 }
 
-func (t *BTreeIndex) Delete(dataVal *query.Constant, rowID record.RowID) {
+func (t *BTreeIndex) Delete(dataVal *types.Constant, rowID record.RowID) {
 	t.BeforeFirst(dataVal)
 	t.leaf.Delete(rowID)
 	t.leaf.Close()
@@ -527,6 +527,6 @@ func (t *BTreeIndex) Close() {
 	}
 }
 
-func (t *BTreeIndex) SearchCost(numBlock int, rpb int) int {
+func BTreeIndexSearchCost(numBlock int, rpb int) int {
 	return 1 + int(math.Log(float64(numBlock)/math.Log(float64(rpb))))
 }

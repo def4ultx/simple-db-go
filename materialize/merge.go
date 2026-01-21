@@ -1,7 +1,6 @@
 package materialize
 
 import (
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
 	"simpledbgo/types"
@@ -65,7 +64,7 @@ type MergeJoinScan struct {
 	s2      *SortScan
 	field1  string
 	field2  string
-	joinVal *query.Constant
+	joinVal *types.Constant
 }
 
 func NewMergeJoinScan(s1 types.Scan, s2 *SortScan, field1, field2 string) *MergeJoinScan {
@@ -86,12 +85,12 @@ func (t *MergeJoinScan) BeforeFirst() {
 
 func (t *MergeJoinScan) Next() bool {
 	hasMore2 := t.s2.Next()
-	if hasMore2 && query.ConstantEqual(t.s2.GetVal(t.field2), t.joinVal) {
+	if hasMore2 && types.ConstantEqual(t.s2.GetVal(t.field2), t.joinVal) {
 		return true
 	}
 
 	hasMore1 := t.s1.Next()
-	if hasMore1 && query.ConstantEqual(t.s1.GetVal(t.field1), t.joinVal) {
+	if hasMore1 && types.ConstantEqual(t.s1.GetVal(t.field1), t.joinVal) {
 		t.s2.restorePosition()
 		return true
 	}
@@ -100,7 +99,7 @@ func (t *MergeJoinScan) Next() bool {
 		v1 := t.s1.GetVal(t.field1)
 		v2 := t.s2.GetVal(t.field2)
 
-		r := query.CompareTo(v1, v2)
+		r := types.ConstantCompareTo(v1, v2)
 		if r < 0 {
 			hasMore1 = t.s1.Next()
 		} else if r > 0 {
@@ -135,7 +134,7 @@ func (t *MergeJoinScan) GetString(fieldName string) string {
 	}
 }
 
-func (t *MergeJoinScan) GetVal(fieldName string) *query.Constant {
+func (t *MergeJoinScan) GetVal(fieldName string) *types.Constant {
 	if t.s1.HasField(fieldName) {
 		return t.s1.GetVal(fieldName)
 	} else {

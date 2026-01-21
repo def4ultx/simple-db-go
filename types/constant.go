@@ -1,4 +1,4 @@
-package query
+package types
 
 import (
 	"simpledbgo/internal/hash"
@@ -54,7 +54,7 @@ func ConstantEqual(a, b *Constant) bool {
 	return false
 }
 
-func CompareTo(a, b *Constant) int {
+func ConstantCompareTo(a, b *Constant) int {
 	if a.intVal != nil && b.intVal != nil {
 
 		aa, bb := *(a.intVal), *(b.intVal)

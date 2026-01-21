@@ -1,7 +1,6 @@
 package operator
 
 import (
-	"simpledbgo/query"
 	"simpledbgo/types"
 )
 
@@ -47,7 +46,7 @@ func (s *ProductScan) GetString(fieldName string) string {
 	return s.s2.GetString(fieldName)
 }
 
-func (s *ProductScan) GetVal(fieldName string) *query.Constant {
+func (s *ProductScan) GetVal(fieldName string) *types.Constant {
 	if s.s1.HasField(fieldName) {
 		return s.s1.GetVal(fieldName)
 	}

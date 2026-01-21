@@ -104,7 +104,7 @@ type TablePlanner struct {
 	plan      *TablePlan
 	predicate *query.Predicate
 	schema    *record.Schema
-	indexes   map[string]*metadata.IndexInfo
+	indexes   map[string]*index.IndexInfo
 	tx        *tx.Transaction
 }
 

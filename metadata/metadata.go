@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"simpledbgo/index"
 	"simpledbgo/record"
 	"simpledbgo/tx"
 )
@@ -46,10 +47,10 @@ func (mgr *MetadataManager) CreateIndex(indexName, tableName, fieldName string, 
 	mgr.indexManager.CreateIndex(indexName, tableName, fieldName, tx)
 }
 
-func (mgr *MetadataManager) GetIndexInfo(tableName string, tx *tx.Transaction) map[string]*IndexInfo {
+func (mgr *MetadataManager) GetIndexInfo(tableName string, tx *tx.Transaction) map[string]*index.IndexInfo {
 	return mgr.indexManager.GetIndexInfo(tableName, tx)
 }
 
-func (mgr *MetadataManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) *StatInfo {
+func (mgr *MetadataManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) *index.StatInfo {
 	return mgr.statManager.GetStatInfo(tableName, layout, tx)
 }

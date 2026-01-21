@@ -3,6 +3,7 @@ package parser
 import (
 	"simpledbgo/query"
 	"simpledbgo/record"
+	"simpledbgo/types"
 )
 
 /*
@@ -47,11 +48,11 @@ func (pp *PredicateParser) Field() string {
 	return pp.lexer.eatID()
 }
 
-func (pp *PredicateParser) Constant() *query.Constant {
+func (pp *PredicateParser) Constant() *types.Constant {
 	if pp.lexer.matchStringConstant() {
-		return query.NewStringConstant(pp.lexer.eatStringConstant())
+		return types.NewStringConstant(pp.lexer.eatStringConstant())
 	} else {
-		return query.NewIntConstant(pp.lexer.eatIntConstant())
+		return types.NewIntConstant(pp.lexer.eatIntConstant())
 	}
 }
 
@@ -199,8 +200,8 @@ func (pp *PredicateParser) fieldList() []string {
 	return l
 }
 
-func (pp *PredicateParser) constList() []*query.Constant {
-	l := make([]*query.Constant, 0)
+func (pp *PredicateParser) constList() []*types.Constant {
+	l := make([]*types.Constant, 0)
 	l = append(l, pp.Constant())
 
 	if pp.lexer.matchDelim(',') {
@@ -342,7 +343,7 @@ func (q *QueryData) AsString() string {
 type InsertData struct {
 	TableName string
 	Fields    []string
-	Values    []*query.Constant
+	Values    []*types.Constant
 }
 
 type DeleteData struct {

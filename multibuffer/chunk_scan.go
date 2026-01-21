@@ -2,9 +2,9 @@ package multibuffer
 
 import (
 	"simpledbgo/file"
-	"simpledbgo/query"
 	"simpledbgo/record"
 	"simpledbgo/tx"
+	"simpledbgo/types"
 )
 
 type ChunkScan struct {
@@ -71,11 +71,11 @@ func (cs *ChunkScan) GetString(fieldName string) string {
 	return cs.rp.GetString(cs.currentSlot, fieldName)
 }
 
-func (cs *ChunkScan) GetVal(fieldName string) *query.Constant {
+func (cs *ChunkScan) GetVal(fieldName string) *types.Constant {
 	if cs.layout.Schema().Type(fieldName) == record.FieldTypeInteger {
-		return query.NewIntConstant(cs.GetInt(fieldName))
+		return types.NewIntConstant(cs.GetInt(fieldName))
 	} else {
-		return query.NewStringConstant(cs.GetString(fieldName))
+		return types.NewStringConstant(cs.GetString(fieldName))
 	}
 }
 
