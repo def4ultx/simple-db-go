@@ -18,7 +18,7 @@ func NewTerm(lhs, rhs *Expression) *Term {
 func (t *Term) IsSatisfied(scan types.Scan) bool {
 	lhsval := t.lhs.Evaluate(scan)
 	rhsval := t.rhs.Evaluate(scan)
-	return lhsval == rhsval
+	return types.ConstantEqual(lhsval, rhsval)
 }
 
 func (t *Term) AppliedTo(schema *record.Schema) bool {

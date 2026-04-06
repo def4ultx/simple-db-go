@@ -22,21 +22,26 @@ func NewManager(fm *file.Manager, logfile string) *Manager {
 
 	logSize := fm.Length(logfile)
 
+	log.Println("Log file size:", logSize, logfile)
+
 	var block *file.BlockID
 	if logSize == 0 {
+		log.Println("Creating new log file:", logfile)
 		block = fm.Append(logfile)
 	} else {
-		block := &file.BlockID{
+		block = &file.BlockID{
 			Filename:    logfile,
 			BlockNumber: logSize - 1,
 		}
 		fm.Read(block, p)
+		log.Println("Reading existing log file:", logfile)
 	}
 
 	mgr := &Manager{
 		fm:           fm,
 		logfile:      logfile,
 		currentBlock: block,
+		currentPage:  p,
 		latestLSN:    0,
 		lastSavedLSN: 0,
 	}

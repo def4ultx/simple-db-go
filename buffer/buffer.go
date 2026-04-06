@@ -24,6 +24,7 @@ func NewBuffer(fm *file.Manager, lm *log.Manager) *Buffer {
 		pins:  0,
 		txNum: -1,
 		lsn:   -1,
+		page:  file.NewPage(fm.BlockSize()),
 	}
 	return buf
 }

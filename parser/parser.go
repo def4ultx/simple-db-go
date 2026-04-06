@@ -174,12 +174,12 @@ func (pp *PredicateParser) insert() *InsertData {
 	tableName := pp.lexer.eatID()
 	pp.lexer.eatDelim('(')
 	fields := pp.fieldList()
-	pp.lexer.eatDelim('(')
+	pp.lexer.eatDelim(')')
 
 	pp.lexer.eatKeyword("values")
 	pp.lexer.eatDelim('(')
 	values := pp.constList()
-	pp.lexer.eatDelim('(')
+	pp.lexer.eatDelim(')')
 
 	id := &InsertData{
 		TableName: tableName,

@@ -144,7 +144,7 @@ func (mgr *Manager) getFile(filename string) *os.File {
 
 	f, err := os.OpenFile(mgr.directory+"/"+filename, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		panic("err")
+		panic(err)
 	}
 
 	mgr.files[filename] = f

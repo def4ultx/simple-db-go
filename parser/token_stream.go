@@ -33,6 +33,7 @@ func NewTokenStream(source string) *TokenStream {
 		ts.tokens = append(ts.tokens, token)
 		token, ok = ts.nextToken()
 	}
+	ts.tokens = append(ts.tokens, token)
 
 	return ts
 }
@@ -200,7 +201,7 @@ func (ts *TokenStream) scanSymbol(startOffset int) Token {
 func (ts *TokenStream) scanChars(startOffset int, terminatedChar byte) Token {
 	endOffset := ts.getOffsetUntilTerminatedChar(terminatedChar, startOffset+1)
 	token := Token{
-		value:     string(ts.source[startOffset:endOffset]),
+		value:     string(ts.source[startOffset+1 : endOffset]),
 		typ:       LiteralString,
 		endOffset: endOffset + 1,
 	}

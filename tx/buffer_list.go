@@ -41,7 +41,7 @@ func (b *BufferList) Unpin(block *file.BlockID) {
 		return
 	}
 
-	slices.Delete(b.pins, idx, idx+1)
+	b.pins = slices.Delete(b.pins, idx, idx+1)
 }
 
 func (b *BufferList) UnpinAll() {

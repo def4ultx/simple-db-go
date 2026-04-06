@@ -48,7 +48,7 @@ func (ts *TableScan) Next() bool {
 			return false
 		}
 
-		ts.moveToBlock(ts.rp.BlockID().BlockNumber)
+		ts.moveToBlock(ts.rp.BlockID().BlockNumber + 1)
 		ts.currentSlot = ts.rp.NextAfter(ts.currentSlot)
 	}
 	return true
@@ -122,7 +122,7 @@ func (ts *TableScan) GetRowID() record.RowID {
 
 func (ts *TableScan) moveToBlock(blockNum int) {
 	ts.Close()
-	block := ts.tx.Append(ts.filename)
+	block := &file.BlockID{Filename: ts.filename, BlockNumber: blockNum}
 	ts.rp = record.NewRecordPage(ts.tx, block, ts.layout)
 	ts.currentSlot = -1
 }

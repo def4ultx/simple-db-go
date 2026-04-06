@@ -1,6 +1,8 @@
 package tx
 
-import "simpledbgo/file"
+import (
+	"simpledbgo/file"
+)
 
 type ConcurrencyManager struct {
 	lockTable *LockTable

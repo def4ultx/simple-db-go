@@ -1,6 +1,8 @@
 package parser
 
-import "strconv"
+import (
+	"strconv"
+)
 
 type Lexer struct {
 	keywords  []string

@@ -66,7 +66,7 @@ func (t *LockTable) Unlock(blockID *file.BlockID) {
 }
 
 func (t *LockTable) hasExclusiveLock(blockID *file.BlockID) bool   { return t.locks[*blockID] < 0 }
-func (t *LockTable) hasOtherSharedLock(blockID *file.BlockID) bool { return t.locks[*blockID] > 0 }
+func (t *LockTable) hasOtherSharedLock(blockID *file.BlockID) bool { return t.locks[*blockID] > 1 }
 
 func waitingTooLong(t time.Time) bool {
 	return time.Now().After(t.Add(10 * time.Second))
